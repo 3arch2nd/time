@@ -15,7 +15,9 @@
         
         /* Setup Screen */
         #setup-screen { padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
-        h1 { margin-bottom: 20px; text-align: center; font-size: 1.8rem; }
+        h1 { margin-bottom: 15px; text-align: center; font-size: 1.8rem; }
+        .btn-qr { background-color: #3b5998; color: white; margin-bottom: 25px; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; }
+        .btn-qr:hover { background-color: #2d4373; }
         .player-input-group { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 400px; }
         .player-input-group input { padding: 10px; border: 1px solid #ccc; border-radius: 8px; width: calc(50% - 10px); font-size: 1rem; }
         button { padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1rem; }
@@ -38,7 +40,7 @@
             text-align: center; font-weight: bold; font-size: 0.9rem; transition: transform 0.3s; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); word-break: keep-all; padding: 4px;
         }
-        .card.hidden { visibility: hidden; } /* 사용된 카드 숨기기 */
+        .card.hidden { visibility: hidden; } 
         
         .card.red { border: 2px solid var(--red-color); background-color: #ffe6e6; }
         .card.blue { border: 2px solid var(--blue-color); background-color: #e6ebff; }
@@ -67,11 +69,12 @@
         .player-badge.active { background: #ff9800; color: white; }
         .score { background: white; color: black; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; justify-content: center; align-items: center; font-size: 0.8rem; }
 
-        /* Modal */
-        #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center; }
-        #modal-content { background: white; width: 90%; max-width: 500px; max-height: 80%; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; }
-        #modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 1.2rem; font-weight: bold; }
-        #btn-close-modal { background: none; color: #333; font-size: 1.5rem; padding: 0; width: auto; height: auto; }
+        /* Modals */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 500px; max-height: 80%; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 1.2rem; font-weight: bold; }
+        .btn-close-modal { background: none; color: #333; font-size: 1.5rem; padding: 0; width: auto; height: auto; }
+        
         #inventory-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
         .inventory-item { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #eee; }
         .inventory-cards { display: flex; gap: 10px; }
@@ -85,11 +88,27 @@
 <body>
 
     <div id="setup-screen">
-        <h1>⏳ 시간 표현 게임 설정</h1>
+        <h1>⏳ 시간 표현 게임</h1>
+        <button class="btn-qr" onclick="showQRCode()">📱 이 게임 QR 코드로 띄우기</button>
+        
         <p style="margin-bottom: 15px; color: #555;">플레이어 이름 입력 (최대 6명)</p>
         <div class="player-input-group" id="player-inputs">
             </div>
         <button class="btn-start" onclick="startGame()">게임 시작 🚀</button>
+    </div>
+
+    <div id="qr-modal" class="modal-overlay" onclick="closeQRCode(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <span>🔗 접속 QR 코드</span>
+                <button class="btn-close-modal" onclick="closeQRCode()">✖</button>
+            </div>
+            <div style="text-align: center; padding: 20px;">
+                <img id="qr-image" src="" alt="QR Code" style="width: 200px; height: 200px; border: 1px solid #eee; padding: 10px; border-radius: 10px;">
+                <p style="margin-top: 15px; font-size: 0.85rem; color: #666; word-break: break-all;" id="qr-url-text"></p>
+                <p style="margin-top: 10px; font-size: 0.9rem; font-weight: bold; color: #ff4d4d;">태블릿 카메라로 화면을 스캔하세요!</p>
+            </div>
+        </div>
     </div>
 
     <div id="game-screen">
@@ -118,11 +137,11 @@
             </div>
     </div>
 
-    <div id="modal-overlay">
-        <div id="modal-content">
-            <div id="modal-header">
+    <div id="inventory-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
                 <span id="modal-title">플레이어 카드</span>
-                <button id="btn-close-modal" onclick="closeModal()">✖</button>
+                <button class="btn-close-modal" onclick="closeModal()">✖</button>
             </div>
             <div id="inventory-list">
                 </div>
@@ -155,6 +174,24 @@
         }
     };
 
+    // --- QR 코드 기능 ---
+    function showQRCode() {
+        const currentUrl = window.location.href;
+        // 오픈 API를 이용해 URL을 이미지(QR)로 변환
+        const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
+        
+        document.getElementById('qr-image').src = qrImageUrl;
+        document.getElementById('qr-url-text').innerText = currentUrl;
+        document.getElementById('qr-modal').style.display = 'flex';
+    }
+
+    function closeQRCode(event) {
+        // 모달 바깥 영역을 클릭했을 때도 닫히도록 예외 처리
+        if (event && event.type === 'click' && event.target.id !== 'qr-modal' && event.target.tagName !== 'BUTTON') return;
+        document.getElementById('qr-modal').style.display = 'none';
+    }
+
+    // --- 유틸 및 게임 로직 ---
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -163,7 +200,6 @@
         return array;
     }
 
-    // --- 게임 시작 ---
     function startGame() {
         players = [];
         for (let i = 1; i <= 6; i++) {
@@ -191,7 +227,6 @@
         blueDeck = shuffle([...blueWords]).map((word, index) => ({ id: `b-${index}`, word, color: 'blue', flipped: false, taken: false }));
     }
 
-    // --- 화면 렌더링 ---
     function renderBoard() {
         const redGrid = document.getElementById('red-grid');
         const blueGrid = document.getElementById('blue-grid');
@@ -215,10 +250,7 @@
     }
 
     function updateUI() {
-        // 차례 표시
         document.getElementById('turn-indicator').innerText = `현재 차례: ${players[currentPlayerIndex].name}`;
-        
-        // 플레이어 목록 표시
         const pList = document.getElementById('players-list');
         pList.innerHTML = '';
         players.forEach((p, index) => {
@@ -230,19 +262,18 @@
         });
     }
 
-    // --- 게임 로직 (카드 클릭) ---
     function handleCardClick(id, color) {
         const deck = color === 'red' ? redDeck : blueDeck;
         const card = deck.find(c => c.id === id);
 
-        if (card.taken || card.flipped) return; // 이미 사용됐거나 뒤집힌 카드는 무시
+        if (card.taken || card.flipped) return;
 
         if (color === 'red') {
-            if (selectedRedId) return; // 이미 빨간 카드를 골랐으면 무시
+            if (selectedRedId) return;
             card.flipped = true;
             selectedRedId = id;
         } else {
-            if (selectedBlueId) return; // 이미 파란 카드를 골랐으면 무시
+            if (selectedBlueId) return;
             card.flipped = true;
             selectedBlueId = id;
         }
@@ -261,9 +292,7 @@
         }
     }
 
-    // --- 액션 버튼 ---
     function returnCards() {
-        // 선택된 카드 다시 뒤집기
         if (selectedRedId) {
             let rc = redDeck.find(c => c.id === selectedRedId);
             rc.flipped = false;
@@ -274,7 +303,6 @@
             bc.flipped = false;
             updateCardDOM(bc);
         }
-        
         resetSelectionAndNextTurn();
     }
 
@@ -287,14 +315,12 @@
         const rc = redDeck.find(c => c.id === selectedRedId);
         const bc = blueDeck.find(c => c.id === selectedBlueId);
 
-        // 현재 플레이어 인벤토리에 추가
         players[currentPlayerIndex].inventory.push({
-            id: Date.now(), // 고유 페어 ID
+            id: Date.now(),
             red: rc,
             blue: bc
         });
 
-        // 보드에서 숨기기
         rc.taken = true;
         bc.taken = true;
         updateCardDOM(rc);
@@ -310,7 +336,7 @@
         updateUI();
     }
 
-    // --- 인벤토리 모달 (x버튼 기능 포함) ---
+    // --- 인벤토리 모달 ---
     function openModal(player) {
         document.getElementById('modal-title').innerText = `${player.name}의 카드 보관함`;
         const list = document.getElementById('inventory-list');
@@ -333,11 +359,11 @@
             });
         }
 
-        document.getElementById('modal-overlay').style.display = 'flex';
+        document.getElementById('inventory-modal').style.display = 'flex';
     }
 
     function closeModal() {
-        document.getElementById('modal-overlay').style.display = 'none';
+        document.getElementById('inventory-modal').style.display = 'none';
     }
 
     function restoreCards(playerId, pairId) {
@@ -347,7 +373,6 @@
         if (pairIndex > -1) {
             const pair = player.inventory[pairIndex];
             
-            // 카드 상태 원복 (보드에 다시 나타남, 뒤집힌 상태 해제)
             pair.red.taken = false;
             pair.red.flipped = false;
             pair.blue.taken = false;
@@ -356,16 +381,13 @@
             updateCardDOM(pair.red);
             updateCardDOM(pair.blue);
 
-            // 인벤토리에서 삭제
             player.inventory.splice(pairIndex, 1);
             
-            // 모달 및 UI 업데이트
             openModal(player);
             updateUI();
         }
     }
 
-    // --- 게임 종료 ---
     function endGame() {
         if(confirm("게임을 종료하고 결과를 확인하시겠습니까?")) {
             let maxScore = -1;
@@ -381,7 +403,7 @@
             });
 
             alert(`🎉 게임 종료! 🎉\n가장 많은 카드를 모은 사람: ${winners.join(', ')} (${maxScore}세트)`);
-            location.reload(); // 새로고침으로 게임 초기화
+            location.reload(); 
         }
     }
 </script>
