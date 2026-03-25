@@ -16,7 +16,7 @@
         /* Setup Screen */
         #setup-screen { padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         h1 { margin-bottom: 15px; text-align: center; font-size: 1.8rem; }
-        .btn-qr { background-color: #3b5998; color: white; margin-bottom: 25px; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; }
+        .btn-qr { background-color: #3b5998; color: white; margin-bottom: 25px; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; border: none; cursor: pointer; }
         .btn-qr:hover { background-color: #2d4373; }
         .player-input-group { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 400px; }
         .player-input-group input { padding: 10px; border: 1px solid #ccc; border-radius: 8px; width: calc(50% - 10px); font-size: 1rem; }
@@ -26,27 +26,54 @@
 
         /* Game Screen */
         #game-screen { display: none; flex-direction: column; height: 100%; }
-        #header { padding: 15px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        #header { padding: 15px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 10; flex-wrap: wrap; gap: 10px; }
         #turn-indicator { font-size: 1.3rem; font-weight: bold; color: #ff9800; }
         
-        #board-container { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 15px; gap: 20px; }
-        .deck-area { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .deck-title { text-align: center; margin-bottom: 10px; font-weight: bold; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)); gap: 8px; }
-
-        /* Cards */
+        .header-buttons { display: flex; gap: 10px; }
+        .btn-small { padding: 6px 12px; font-size: 0.9rem; border-radius: 5px; cursor: pointer; border: none; }
+        .btn-exit-fs { background: #e0e0e0; color: #333; }
+        .btn-end { background: #ff4d4d; color: white; }
+        
+        #board-container { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 15px; gap: 15px; }
+        .deck-area { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        .deck-title { text-align: center; margin-bottom: 10px; font-weight: bold; position: sticky; top: 0; background: white; z-index: 5; padding-bottom: 5px; font-size: 1.1rem;}
+        
+        /* 기본 상태 (모바일 세로 모드) */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; flex: 1;}
         .card { 
-            height: 90px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            text-align: center; font-weight: bold; font-size: 0.9rem; transition: transform 0.3s; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); word-break: keep-all; padding: 4px;
+            height: 70px; 
+            border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            text-align: center; font-weight: bold; font-size: 0.85rem; transition: transform 0.3s; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); word-break: keep-all; padding: 2px;
         }
+        .card .back { display: block; font-size: 1.2rem; color: rgba(0,0,0,0.2); }
+        
+        /* 가로 모드 (Landscape - 태블릿 가로 등) */
+        @media (orientation: landscape) {
+            #board-container { flex-direction: row; padding: 10px; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 6px; }
+            .card { height: 60px; font-size: 0.8rem; }
+            #action-panel { padding: 10px; }
+            .btn-action { padding: 10px 20px; font-size: 1.1rem; }
+        }
+
+        /* PC 및 큰 화면 (가로 1024px 이상) - 카드 크기 넉넉하게 확대 */
+        @media (min-width: 1024px) {
+            #board-container { flex-direction: row; padding: 20px; gap: 20px; }
+            .deck-area { padding: 20px; }
+            .deck-title { font-size: 1.4rem; margin-bottom: 15px; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; align-content: start; }
+.card { height: 110px; font-size: 1.1rem; padding: 8px; }
+            .card .back { font-size: 2.5rem; }
+            .btn-action { padding: 20px 40px; font-size: 1.4rem; max-width: 300px; }
+            #players-list { padding: 15px; gap: 15px; }
+            .player-badge { padding: 10px 20px; font-size: 1.1rem; }
+        }
+
         .card.hidden { visibility: hidden; } 
-        
-        .card.red { border: 2px solid var(--red-color); background-color: #ffe6e6; }
-        .card.blue { border: 2px solid var(--blue-color); background-color: #e6ebff; }
-        
+.card.red { border: none; background-color: #ffe6e6; }
+.card.blue { border: none; background-color: #e6ebff; }
         .card .front { display: none; }
-        .card .back { display: block; font-size: 1.5rem; color: rgba(0,0,0,0.2); }
         
         .card.flipped { transform: scale(1.05); }
         .card.flipped .front { display: block; }
@@ -73,7 +100,7 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center; }
         .modal-content { background: white; width: 90%; max-width: 500px; max-height: 80%; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 1.2rem; font-weight: bold; }
-        .btn-close-modal { background: none; color: #333; font-size: 1.5rem; padding: 0; width: auto; height: auto; }
+        .btn-close-modal { background: none; color: #333; font-size: 1.5rem; padding: 0; width: auto; height: auto; border: none; cursor: pointer;}
         
         #inventory-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
         .inventory-item { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #eee; }
@@ -81,7 +108,7 @@
         .inv-card { padding: 5px 10px; border-radius: 5px; font-size: 0.9rem; font-weight: bold; color: white; }
         .inv-card.red { background: var(--red-color); }
         .inv-card.blue { background: var(--blue-color); }
-        .btn-restore { background: #ff4d4d; color: white; padding: 5px 10px; font-size: 0.9rem; border-radius: 5px; }
+        .btn-restore { background: #ff4d4d; color: white; padding: 5px 10px; font-size: 0.9rem; border-radius: 5px; border: none; cursor: pointer;}
 
     </style>
 </head>
@@ -113,7 +140,10 @@
     <div id="game-screen">
         <div id="header">
             <div id="turn-indicator">현재 차례: 플레이어 1</div>
-            <button onclick="endGame()" style="padding: 6px 12px; font-size: 0.9rem; background:#eee; color:#333;">게임 종료</button>
+            <div class="header-buttons">
+                <button class="btn-small btn-exit-fs" onclick="toggleFullScreen()">전체화면 끄기</button>
+                <button class="btn-small btn-end" onclick="openConfirmModal()">게임 종료</button>
+            </div>
         </div>
 
         <div id="board-container">
@@ -128,8 +158,8 @@
         </div>
 
         <div id="action-panel">
-            <button class="btn-action btn-return" onclick="returnCards()">돌려놓기 ↩️</button>
-            <button class="btn-action btn-take" onclick="takeCards()">가져오기 ✨</button>
+            <button class="btn-action btn-return" onclick="returnCards()">(실패!) 카드 돌려놓기 ↩️</button>
+            <button class="btn-action btn-take" onclick="takeCards()">(성공!) 가져오기 ✨</button>
         </div>
 
         <div id="players-list">
@@ -144,6 +174,16 @@
             </div>
             <div id="inventory-list">
                 </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 320px; text-align: center;">
+            <p style="margin-bottom: 20px; font-size: 1.1rem; font-weight: bold; line-height: 1.4;">게임을 종료하고<br>결과를 확인할까요?</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button style="background: #757575; color: white; padding: 10px 20px; font-size: 1rem; cursor: pointer; border: none; border-radius: 8px;" onclick="closeConfirmModal()">아니오</button>
+                <button style="background: #ff4d4d; color: white; padding: 10px 20px; font-size: 1rem; cursor: pointer; border: none; border-radius: 8px;" onclick="showResult()">예, 확인할래요</button>
+            </div>
         </div>
     </div>
 
@@ -186,6 +226,30 @@
         }
     };
 
+    // --- 전체화면 기능 ---
+    function requestFullScreen() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => console.log("전체화면 지원 안됨"));
+        } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen();
+        }
+    }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            requestFullScreen();
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            }
+        }
+    }
+
     // --- QR 코드 기능 ---
     function showQRCode() {
         const currentUrl = window.location.href;
@@ -222,6 +286,9 @@
             alert("최소 1명 이상의 플레이어 이름을 입력해주세요!");
             return;
         }
+
+        // 전체화면 강제 실행
+        requestFullScreen();
 
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('game-screen').style.display = 'flex';
@@ -398,30 +465,39 @@
     }
 
     // --- 게임 종료 및 결과 모달 ---
-    function endGame() {
-        if(confirm("게임을 종료하고 결과를 확인하시겠습니까?")) {
-            let maxScore = -1;
-            let winners = [];
-            
-            players.forEach(p => {
-                if (p.inventory.length > maxScore) {
-                    maxScore = p.inventory.length;
-                    winners = [p.name];
-                } else if (p.inventory.length === maxScore) {
-                    winners.push(p.name);
-                }
-            });
+    function openConfirmModal() {
+        document.getElementById('confirm-modal').style.display = 'flex';
+    }
 
-            // 결과 모달 렌더링
-            const resultContent = document.getElementById('result-content');
-            resultContent.innerHTML = `
-                <p style="font-size: 1.5rem; font-weight: bold; color: #ff9800; margin-bottom: 10px;">🏆 우승자 🏆</p>
-                <p style="font-size: 2rem; font-weight: bold; margin-bottom: 15px;">${winners.join(', ')}</p>
-                <p>획득한 세트: <span style="font-weight: bold; color: #4caf50;">${maxScore}</span> 세트</p>
-            `;
+    function closeConfirmModal() {
+        document.getElementById('confirm-modal').style.display = 'none';
+    }
 
-            document.getElementById('result-modal').style.display = 'flex';
-        }
+    function showResult() {
+        // 확인 모달 닫기
+        closeConfirmModal();
+
+        let maxScore = -1;
+        let winners = [];
+        
+        players.forEach(p => {
+            if (p.inventory.length > maxScore) {
+                maxScore = p.inventory.length;
+                winners = [p.name];
+            } else if (p.inventory.length === maxScore) {
+                winners.push(p.name);
+            }
+        });
+
+        // 결과 모달 렌더링
+        const resultContent = document.getElementById('result-content');
+        resultContent.innerHTML = `
+            <p style="font-size: 1.5rem; font-weight: bold; color: #ff9800; margin-bottom: 10px;">🏆 우승자 🏆</p>
+            <p style="font-size: 2rem; font-weight: bold; margin-bottom: 15px;">${winners.join(', ')}</p>
+            <p>획득한 세트: <span style="font-weight: bold; color: #4caf50;">${maxScore}</span> 세트</p>
+        `;
+
+        document.getElementById('result-modal').style.display = 'flex';
     }
 </script>
 </body>
