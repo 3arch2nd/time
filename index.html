@@ -16,13 +16,8 @@
         /* Setup Screen */
         #setup-screen { padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         h1 { margin-bottom: 15px; text-align: center; font-size: 1.8rem; }
-        .setup-buttons { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
-        .btn-top { color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; border: none; cursor: pointer; transition: 0.2s; }
-        .btn-qr { background-color: #3b5998; }
+        .btn-qr { background-color: #3b5998; color: white; margin-bottom: 25px; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; border: none; cursor: pointer; }
         .btn-qr:hover { background-color: #2d4373; }
-        .btn-setting { background-color: #795548; }
-        .btn-setting:hover { background-color: #5d4037; }
-
         .player-input-group { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 400px; }
         .player-input-group input { padding: 10px; border: 1px solid #ccc; border-radius: 8px; width: calc(50% - 10px); font-size: 1rem; }
         button { padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1rem; }
@@ -44,7 +39,7 @@
         .deck-title { text-align: center; margin-bottom: 10px; font-weight: bold; position: sticky; top: 0; background: white; z-index: 5; padding-bottom: 5px; font-size: 1.1rem;}
         
         /* 기본 상태 (모바일 세로 모드) */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; flex: 1; align-content: start;}
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; flex: 1;}
         .card { 
             height: 70px; 
             border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -62,13 +57,13 @@
             .btn-action { padding: 10px 20px; font-size: 1.1rem; }
         }
 
-        /* PC 및 큰 화면 (가로 1024px 이상) */
+        /* PC 및 큰 화면 (가로 1024px 이상) - 카드 크기 넉넉하게 확대 */
         @media (min-width: 1024px) {
             #board-container { flex-direction: row; padding: 20px; gap: 20px; }
             .deck-area { padding: 20px; }
             .deck-title { font-size: 1.4rem; margin-bottom: 15px; }
-            .grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; }
-            .card { height: 110px; font-size: 1.1rem; padding: 8px; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; align-content: start; }
+.card { height: 110px; font-size: 1.1rem; padding: 8px; }
             .card .back { font-size: 2.5rem; }
             .btn-action { padding: 20px 40px; font-size: 1.4rem; max-width: 300px; }
             #players-list { padding: 15px; gap: 15px; }
@@ -76,8 +71,8 @@
         }
 
         .card.hidden { visibility: hidden; } 
-        .card.red { border: none; background-color: #ffe6e6; }
-        .card.blue { border: none; background-color: #e6ebff; }
+.card.red { border: none; background-color: #ffe6e6; }
+.card.blue { border: none; background-color: #e6ebff; }
         .card .front { display: none; }
         
         .card.flipped { transform: scale(1.05); }
@@ -115,49 +110,18 @@
         .inv-card.blue { background: var(--blue-color); }
         .btn-restore { background: #ff4d4d; color: white; padding: 5px 10px; font-size: 0.9rem; border-radius: 5px; border: none; cursor: pointer;}
 
-        .textarea-container { display: flex; gap: 10px; margin-bottom: 15px; flex-direction: column; }
-        @media (min-width: 600px) { .textarea-container { flex-direction: row; } }
-        .word-textarea { width: 100%; height: 200px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; resize: none; font-size: 1rem; }
-
     </style>
 </head>
 <body>
 
     <div id="setup-screen">
         <h1>⏳ 시간 표현 게임</h1>
-        <div class="setup-buttons">
-            <button class="btn-top btn-qr" onclick="showQRCode()">📱 이 게임 QR 코드로 띄우기</button>
-            <button class="btn-top btn-setting" onclick="openWordSettings()">⚙️ 단어장 설정</button>
-        </div>
+        <button class="btn-qr" onclick="showQRCode()">📱 이 게임 QR 코드로 띄우기</button>
         
         <p style="margin-bottom: 15px; color: #555;">플레이어 이름 입력 (최대 6명)</p>
         <div class="player-input-group" id="player-inputs">
             </div>
         <button class="btn-start" onclick="startGame()">게임 시작 🚀</button>
-    </div>
-
-    <div id="word-setting-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">
-                <span>⚙️ 단어 꾸러미 설정</span>
-                <button class="btn-close-modal" onclick="closeWordSettings()">✖</button>
-            </div>
-            <div class="textarea-container">
-                <div style="flex: 1;">
-                    <div style="font-weight: bold; color: var(--red-color); margin-bottom: 5px;">빨간 카드 (언제)</div>
-                    <textarea id="red-words-input" class="word-textarea" placeholder="단어를 엔터로 구분해서 입력하세요"></textarea>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: bold; color: var(--blue-color); margin-bottom: 5px;">파란 카드 (끝맺는 말)</div>
-                    <textarea id="blue-words-input" class="word-textarea" placeholder="단어를 엔터로 구분해서 입력하세요"></textarea>
-                </div>
-            </div>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px; text-align: center; word-break: keep-all;">각 단어는 <b>줄바꿈(엔터)</b>으로 구분해 주세요. 저장 후 QR코드를 띄우면 이 단어들이 적용됩니다.</p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <button style="background: #757575; color: white; padding: 10px 20px; font-size: 1rem; border: none; border-radius: 8px;" onclick="resetWordSettings()">기본값 복구</button>
-                <button style="background: #4caf50; color: white; padding: 10px 20px; font-size: 1rem; border: none; border-radius: 8px;" onclick="saveWordSettings()">저장하기 ✨</button>
-            </div>
-        </div>
     </div>
 
     <div id="qr-modal" class="modal-overlay" onclick="closeQRCode(event)">
@@ -167,7 +131,7 @@
                 <button class="btn-close-modal" onclick="closeQRCode()">✖</button>
             </div>
             <div style="text-align: center; padding: 20px;">
-                <img id="qr-image" src="" alt="QR Code" style="width: 250px; height: 250px; border: 1px solid #eee; padding: 10px; border-radius: 10px;">
+                <img id="qr-image" src="" alt="QR Code" style="width: 200px; height: 200px; border: 1px solid #eee; padding: 10px; border-radius: 10px;">
                 <p style="margin-top: 15px; font-size: 0.9rem; font-weight: bold; color: #ff4d4d;">태블릿 카메라로 화면을 스캔하세요!</p>
             </div>
         </div>
@@ -237,13 +201,9 @@
     </div>
 
 <script>
-    // --- 기본 제공 데이터 ---
-    const defaultRedWords = ['어제', '아까', '지난주에', '작년에', '방금', '옛날에', '그저께', '지금', '오늘', '현재', '요즘', '당장', '무적카드!', '내일', '나중에', '잠시 후', '내년에', '이따가', '언젠가', '다음주'];
-    const defaultBlueWords = ['먹었다', '갔다', '보았다', '만났다', '샀다', '공부했다', '잤다', '먹는다', '간다', '본다', '공부한다', '요리한다', '운동한다', '먹을 것이다', '갈 것이다', '볼 것이다', '공부할 것이다', '요리할 것이다', '여행할 것이다', '살 것이다'];
-
-    // 실제 게임에 사용될 데이터
-    let currentRedWords = [];
-    let currentBlueWords = [];
+    // --- 데이터 정의 ---
+    const redWords = ['어제', '아까', '지난주에', '작년에', '방금', '옛날에', '그저께', '지금', '오늘', '현재', '요즘', '당장', '무적카드!', '내일', '나중에', '잠시 후', '내년에', '이따가', '언젠가', '다음주'];
+    const blueWords = ['먹었다', '갔다', '보았다', '만났다', '샀다', '공부했다', '잤다', '먹는다', '간다', '본다', '공부한다', '요리한다', '운동한다', '먹을 것이다', '갈 것이다', '볼 것이다', '공부할 것이다', '요리할 것이다', '여행할 것이다', '살 것이다'];
 
     let players = [];
     let currentPlayerIndex = 0;
@@ -256,30 +216,6 @@
 
     // --- 초기화 함수 ---
     window.onload = () => {
-        // 1. 단어 데이터 동기화 (URL 파라미터 우선 -> 로컬 스토리지 -> 기본값)
-        const urlParams = new URLSearchParams(window.location.search);
-        const rParam = urlParams.get('r');
-        const bParam = urlParams.get('b');
-
-        if (rParam && bParam) {
-            // 학생이 QR로 접속한 경우 (URL에 단어 데이터가 있음)
-            currentRedWords = rParam.split(',');
-            currentBlueWords = bParam.split(',');
-        } else {
-            // 교사 PC이거나 최초 접속 (로컬 스토리지 확인)
-            const savedRed = localStorage.getItem('timeGameRedWords');
-            const savedBlue = localStorage.getItem('timeGameBlueWords');
-            
-            if (savedRed && savedBlue) {
-                currentRedWords = JSON.parse(savedRed);
-                currentBlueWords = JSON.parse(savedBlue);
-            } else {
-                currentRedWords = [...defaultRedWords];
-                currentBlueWords = [...defaultBlueWords];
-            }
-        }
-
-        // 2. 플레이어 입력창 생성
         const inputGroup = document.getElementById('player-inputs');
         for (let i = 1; i <= 6; i++) {
             const input = document.createElement('input');
@@ -289,72 +225,6 @@
             inputGroup.appendChild(input);
         }
     };
-
-    // --- 단어장 설정 모달 기능 ---
-    function openWordSettings() {
-        document.getElementById('red-words-input').value = currentRedWords.join('\n');
-        document.getElementById('blue-words-input').value = currentBlueWords.join('\n');
-        document.getElementById('word-setting-modal').style.display = 'flex';
-    }
-
-    function closeWordSettings() {
-        document.getElementById('word-setting-modal').style.display = 'none';
-    }
-
-    function resetWordSettings() {
-        if(confirm("단어 꾸러미를 기본 제공 상태로 되돌리시겠습니까?")) {
-            document.getElementById('red-words-input').value = defaultRedWords.join('\n');
-            document.getElementById('blue-words-input').value = defaultBlueWords.join('\n');
-        }
-    }
-
-    function saveWordSettings() {
-        const redText = document.getElementById('red-words-input').value;
-        const blueText = document.getElementById('blue-words-input').value;
-
-        // 엔터(\n) 기준으로 분리하고 양옆 공백 제거 후 빈칸 제외
-        const newRed = redText.split('\n').map(w => w.trim()).filter(w => w !== '');
-        const newBlue = blueText.split('\n').map(w => w.trim()).filter(w => w !== '');
-
-        if(newRed.length === 0 || newBlue.length === 0) {
-            alert("빨간 카드와 파란 카드 단어를 최소 1개 이상 입력해주세요!");
-            return;
-        }
-
-        currentRedWords = newRed;
-        currentBlueWords = newBlue;
-
-        // 로컬 스토리지에 JSON 형태로 저장
-        localStorage.setItem('timeGameRedWords', JSON.stringify(currentRedWords));
-        localStorage.setItem('timeGameBlueWords', JSON.stringify(currentBlueWords));
-
-        alert("단어 꾸러미가 저장되었습니다! ✨\n이제 QR 코드를 띄우면 변경된 단어가 적용됩니다.");
-        closeWordSettings();
-    }
-
-    // --- QR 코드 기능 ---
-    function showQRCode() {
-        // 현재 접속 중인 기본 URL 획득 (파라미터 제거)
-        const baseUrl = window.location.origin + window.location.pathname;
-        
-        // 커스텀 단어를 URL 파라미터로 변환 (용량 절약을 위해 콤마로 연결)
-        const params = new URLSearchParams();
-        params.set('r', currentRedWords.join(','));
-        params.set('b', currentBlueWords.join(','));
-        
-        const finalUrl = baseUrl + '?' + params.toString();
-        
-        // URL이 길어졌으므로 QR 코드 사이즈를 300x300으로 조금 키움
-        const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(finalUrl)}`;
-        
-        document.getElementById('qr-image').src = qrImageUrl;
-        document.getElementById('qr-modal').style.display = 'flex';
-    }
-
-    function closeQRCode(event) {
-        if (event && event.type === 'click' && event.target.id !== 'qr-modal' && event.target.tagName !== 'BUTTON') return;
-        document.getElementById('qr-modal').style.display = 'none';
-    }
 
     // --- 전체화면 기능 ---
     function requestFullScreen() {
@@ -380,6 +250,20 @@
         }
     }
 
+    // --- QR 코드 기능 ---
+    function showQRCode() {
+        const currentUrl = window.location.href;
+        const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
+        
+        document.getElementById('qr-image').src = qrImageUrl;
+        document.getElementById('qr-modal').style.display = 'flex';
+    }
+
+    function closeQRCode(event) {
+        if (event && event.type === 'click' && event.target.id !== 'qr-modal' && event.target.tagName !== 'BUTTON') return;
+        document.getElementById('qr-modal').style.display = 'none';
+    }
+
     // --- 유틸 및 게임 로직 ---
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -403,6 +287,7 @@
             return;
         }
 
+        // 전체화면 강제 실행
         requestFullScreen();
 
         document.getElementById('setup-screen').style.display = 'none';
@@ -414,9 +299,8 @@
     }
 
     function initDecks() {
-        // 이제 기본 데이터가 아닌 currentRedWords, currentBlueWords를 사용합니다.
-        redDeck = shuffle([...currentRedWords]).map((word, index) => ({ id: `r-${index}`, word, color: 'red', flipped: false, taken: false }));
-        blueDeck = shuffle([...currentBlueWords]).map((word, index) => ({ id: `b-${index}`, word, color: 'blue', flipped: false, taken: false }));
+        redDeck = shuffle([...redWords]).map((word, index) => ({ id: `r-${index}`, word, color: 'red', flipped: false, taken: false }));
+        blueDeck = shuffle([...blueWords]).map((word, index) => ({ id: `b-${index}`, word, color: 'blue', flipped: false, taken: false }));
     }
 
     function renderBoard() {
@@ -590,6 +474,7 @@
     }
 
     function showResult() {
+        // 확인 모달 닫기
         closeConfirmModal();
 
         let maxScore = -1;
@@ -604,6 +489,7 @@
             }
         });
 
+        // 결과 모달 렌더링
         const resultContent = document.getElementById('result-content');
         resultContent.innerHTML = `
             <p style="font-size: 1.5rem; font-weight: bold; color: #ff9800; margin-bottom: 10px;">🏆 우승자 🏆</p>
