@@ -105,8 +105,7 @@
             </div>
             <div style="text-align: center; padding: 20px;">
                 <img id="qr-image" src="" alt="QR Code" style="width: 200px; height: 200px; border: 1px solid #eee; padding: 10px; border-radius: 10px;">
-                <p style="margin-top: 15px; font-size: 0.85rem; color: #666; word-break: break-all;" id="qr-url-text"></p>
-                <p style="margin-top: 10px; font-size: 0.9rem; font-weight: bold; color: #ff4d4d;">태블릿 카메라로 화면을 스캔하세요!</p>
+                <p style="margin-top: 15px; font-size: 0.9rem; font-weight: bold; color: #ff4d4d;">태블릿 카메라로 화면을 스캔하세요!</p>
             </div>
         </div>
     </div>
@@ -148,6 +147,19 @@
         </div>
     </div>
 
+    <div id="result-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header" style="justify-content: center;">
+                <span>🎉 게임 결과 🎉</span>
+            </div>
+            <div id="result-content" style="text-align: center; padding: 20px; font-size: 1.2rem; line-height: 1.6;">
+                </div>
+            <div style="text-align: center; margin-top: 10px;">
+                <button class="btn-start" onclick="location.reload()">다시 시작하기 🔄</button>
+            </div>
+        </div>
+    </div>
+
 <script>
     // --- 데이터 정의 ---
     const redWords = ['어제', '아까', '지난주에', '작년에', '방금', '옛날에', '그저께', '지금', '오늘', '현재', '요즘', '당장', '무적카드!', '내일', '나중에', '잠시 후', '내년에', '이따가', '언젠가', '다음주'];
@@ -177,16 +189,13 @@
     // --- QR 코드 기능 ---
     function showQRCode() {
         const currentUrl = window.location.href;
-        // 오픈 API를 이용해 URL을 이미지(QR)로 변환
         const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
         
         document.getElementById('qr-image').src = qrImageUrl;
-        document.getElementById('qr-url-text').innerText = currentUrl;
         document.getElementById('qr-modal').style.display = 'flex';
     }
 
     function closeQRCode(event) {
-        // 모달 바깥 영역을 클릭했을 때도 닫히도록 예외 처리
         if (event && event.type === 'click' && event.target.id !== 'qr-modal' && event.target.tagName !== 'BUTTON') return;
         document.getElementById('qr-modal').style.display = 'none';
     }
@@ -388,6 +397,7 @@
         }
     }
 
+    // --- 게임 종료 및 결과 모달 ---
     function endGame() {
         if(confirm("게임을 종료하고 결과를 확인하시겠습니까?")) {
             let maxScore = -1;
@@ -402,8 +412,15 @@
                 }
             });
 
-            alert(`🎉 게임 종료! 🎉\n가장 많은 카드를 모은 사람: ${winners.join(', ')} (${maxScore}세트)`);
-            location.reload(); 
+            // 결과 모달 렌더링
+            const resultContent = document.getElementById('result-content');
+            resultContent.innerHTML = `
+                <p style="font-size: 1.5rem; font-weight: bold; color: #ff9800; margin-bottom: 10px;">🏆 우승자 🏆</p>
+                <p style="font-size: 2rem; font-weight: bold; margin-bottom: 15px;">${winners.join(', ')}</p>
+                <p>획득한 세트: <span style="font-weight: bold; color: #4caf50;">${maxScore}</span> 세트</p>
+            `;
+
+            document.getElementById('result-modal').style.display = 'flex';
         }
     }
 </script>
